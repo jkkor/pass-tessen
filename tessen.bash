@@ -25,7 +25,7 @@ declare -A tsn_passdata
 tsn_otp=false
 tsn_userkey="user"
 tsn_urlkey="url"
-
+jk_os=$(uname)
 # FIRST MENU: generate list of password store files and let user select one
 get_pass_file() {
   local -a tmp_pass_files
@@ -178,13 +178,17 @@ key_action() {
 # `wayland` or `x11` if a display manager isn't being used
 tsn_clip() {
   local -a tsn_clip_cmd tsn_clip_args
-
-  if [[ -n $WAYLAND_DISPLAY ]]; then
-    tsn_clip_cmd=(wl-copy --trim-newline)
-    tsn_clip_args=(--clear)
+  if [ "$jk_os" = "Darwin" ]; then
+      tsn_clip_cmd=(pbcopy)
+      tsn_clip_args=()
   else
-    tsn_clip_cmd=(xclip -selection clipboard -rmlastnl)
-    tsn_clip_args=(-i /dev/null)
+      if [[ -n $WAYLAND_DISPLAY ]]; then
+          tsn_clip_cmd=(wl-copy --trim-newline)
+          tsn_clip_args=(--clear)
+      else
+          tsn_clip_cmd=(xclip -selection clipboard -rmlastnl)
+          tsn_clip_args=(-i /dev/null)
+      fi
   fi
 
   if [[ -n $1 ]]; then
